@@ -1,2 +1,2 @@
 # dropthenet
-Repository for Drop the Net Studios games.
+Repository for Drop the Net Studios.
