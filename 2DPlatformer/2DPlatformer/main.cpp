@@ -26,5 +26,4 @@ int main()
 		window.draw(circle);
 		window.display();
 	}
-
 }
