@@ -1,102 +1,45 @@
-//========================================================================
-// Simple GLFW example
-// Copyright (c) Camilla Berglund <elmindreda@elmindreda.org>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
-//! [code]
-
-#include <GLFW/glfw3.h>
-
-#include <stdlib.h>
+#include <GL/glew.h> // include GLEW and new version of GL on Windows
+#include <GLFW/glfw3.h> // GLFW helper library
 #include <stdio.h>
 
-static void error_callback(int error, const char* description)
-{
-	fputs(description, stderr);
-}
+int main() {
+	// start GL context and O/S window using the GLFW helper library
+	if (!glfwInit()) {
+		fprintf(stderr, "ERROR: could not start GLFW3\n");
+		return 1;
+	}
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, GL_TRUE);
-}
+	// uncomment these lines if on Apple OS X
+	/*glfwWindowHint (GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint (GLFW_CONTEXT_VERSION_MINOR, 2);
+	glfwWindowHint (GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint (GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);*/
 
-int main(void)
-{
-	GLFWwindow* window;
-
-	glfwSetErrorCallback(error_callback);
-
-	if (!glfwInit())
-		exit(EXIT_FAILURE);
-
-	window = glfwCreateWindow(640, 480, "Simple example", NULL, NULL);
-	if (!window)
-	{
+	GLFWwindow* window = glfwCreateWindow(640, 480, "Hello Triangle", NULL, NULL);
+	if (!window) {
+		fprintf(stderr, "ERROR: could not open window with GLFW3\n");
 		glfwTerminate();
-		exit(EXIT_FAILURE);
+		return 1;
 	}
-
 	glfwMakeContextCurrent(window);
-	glfwSwapInterval(1);
 
-	glfwSetKeyCallback(window, key_callback);
+	// start GLEW extension handler
+	glewExperimental = GL_TRUE;
+	glewInit();
 
-	while (!glfwWindowShouldClose(window))
-	{
-		float ratio;
-		int width, height;
+	// get version info
+	const GLubyte* renderer = glGetString(GL_RENDERER); // get renderer string
+	const GLubyte* version = glGetString(GL_VERSION); // version as a string
+	printf("Renderer: %s\n", renderer);
+	printf("OpenGL version supported %s\n", version);
 
-		glfwGetFramebufferSize(window, &width, &height);
-		ratio = width / (float)height;
+	// tell GL to only draw onto a pixel if the shape is closer to the viewer
+	glEnable(GL_DEPTH_TEST); // enable depth-testing
+	glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
 
-		glViewport(0, 0, width, height);
-		glClear(GL_COLOR_BUFFER_BIT);
+						  /* OTHER STUFF GOES HERE NEXT */
 
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glOrtho(-ratio, ratio, -1.f, 1.f, 1.f, -1.f);
-		glMatrixMode(GL_MODELVIEW);
-
-		glLoadIdentity();
-		glRotatef((float)glfwGetTime() * 50.f, 0.f, 0.f, 1.f);
-
-		glBegin(GL_TRIANGLES);
-		glColor3f(1.f, 0.f, 0.f);
-		glVertex3f(-0.6f, -0.4f, 0.f);
-		glColor3f(0.f, 1.f, 0.f);
-		glVertex3f(0.6f, -0.4f, 0.f);
-		glColor3f(0.f, 0.f, 1.f);
-		glVertex3f(0.f, 0.6f, 0.f);
-		glEnd();
-
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-	}
-
-	glfwDestroyWindow(window);
-
+						  // close GL context and any other GLFW resources
 	glfwTerminate();
-	exit(EXIT_SUCCESS);
+	return 0;
 }
-
-//! [code]
